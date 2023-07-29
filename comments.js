@@ -1,32 +1,48 @@
-// Create a web server that can respond to requests for comments.json on port 3000.
-// The server should respond to requests to /comments with a JSON string of the form:
-// {"name": "My Name", "comment": "This is a comment."}
-// The name and comment fields in the JSON string should be replaced with the values
-// from the GET parameters name and comment, respectively. The GET parameters will
-// be encoded in the request URL as: /comments?name=My%20Name&comment=This%20is%20a%20comment.
-// You can parse GET parameters from the request URL using the parse method of the
-// built-in url module. url.parse(request.url, true) will return an object
-// (second argument of url.parse) that has a query field containing an object
-// with the GET parameters as key-value pairs.
-// For example, the parsed query string for the URL /path/to/page?name=ferret&color=purple
-// will be {name: 'ferret', color: 'purple'}.
-// You should also add the following header to the response:
-// "Access-Control-Allow-Origin": "*"
-// This will allow requests from any origin to access your JSON API.
-// Learn more about this HTTP header here.
-// Finally, remember to listen on port 3000, since that is the port the main
-// website will send requests to.
+// Create a web server that can receive a POST request containing some JSON
+// and it will respond with the contents of the JSON.
 
-var http = require('http');
-var url = require('url');
+// The server should listen on the port provided by process.argv[2].
 
-var server = http.createServer(function (req, res) {
-    var parsedUrl = url.parse(req.url, true);
-    if (parsedUrl.pathname === '/comments') {
-        var name = parsedUrl.query.name;
-        var comment = parsedUrl.query.comment;
-        res.writeHead(200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'});
-        res.end(JSON.stringify({name: name, comment: comment}));
-    }
+// HINTS
+// For this exercise we'll be creating a raw HTTP server. We don't need any
+// additional frameworks to complete this exercise.
+
+// We can create an HTTP server using the http module like this:
+
+//     var http = require('http')
+//     var server = http.createServer(function (req, res) {
+//       // request handling logic...
+//     })
+//     server.listen(8000)
+
+// The req object in this example is a ReadableStream and the res object is a
+// WritableStream. For more information about streams see the documentation.
+
+// The fs core module also has some streaming APIs for files. You will need to
+// use the fs.createReadStream() method to create a stream representing the
+// file you are given as a command-line argument. The method returns a
+// stream object which you can use src.pipe(dst) to pipe the data from the
+// src stream to the dst stream. In this way you can connect a filesystem
+// stream with an HTTP response stream.
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+//  » To print these instructions again, run: `expressworks print`.
+//  » To execute your program in a test environment, run:
+//    `expressworks run program.js`.
+//  » To verify your program, run: `expressworks verify program.js`.
+//  » For help with this problem or with expressworks, run:
+//    `expressworks help`.
+
+var express = require('express');
+var app = express();
+var fs = require('fs');
+
+app.use(express.urlencoded({extended: false}));
+app.use(express.json());
+
+app.post('/send', function(req, res) {
+  res.send(req.body);
 });
-server.listen(3000);
+
+app.listen(process.argv[2]);
